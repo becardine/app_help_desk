@@ -5,14 +5,28 @@
   //chamados
   $chamados = array();
   //abrir o arquivo txt
-  $arquivo = fopen('arquivo.txt', 'r');
+  $arquivo = fopen('../../app_help_desk/arquivo.txt', 'r');
 
   //enquanto houver registros (linhas)
   while(!feof($arquivo)) { //testa o fim do arquivo
     //linhas
     $registro = fgets($arquivo);
-    $chamados[] = $registro;
+    $registro_detalhes = explode('#', $registro);
+    //(perfil id = 2) só vamos exibir o chamado, se ele foi criado pelo usuário
+    if($_SESSION['perfil_id'] == 2) {
+
+      //se usuário autenticado não for o usuário de abertura do chamado então não faz nada
+      if($_SESSION['id'] != $registro_detalhes[0]) {
+        continue; //não faz nada
+
+      } else {
+        $chamados[] = $registro; //adiciona o registro do arquivo ao array $chamados
+      }
+  } else {
+    $chamados[] = $registro; //adiciona o registro do arquivo ao array $chamados
   }
+
+}
 
   //fecha o arquivo aberto
   fclose($arquivo);
@@ -65,12 +79,7 @@
                 <?php 
                   $chamado_dados = explode('#', $chamado);
 
-                  if($_SESSION['perfil_id'] == 2) {
-                    if($_SESSION['id'] != $chamado_dados[0]) {
-                      continue;
-                    }
-                  }
-
+                  //não existe detalhes do chamado se ele não estiver completo
                   if(count($chamado_dados) < 3) {
                     continue;
                   }
